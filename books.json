@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "bookName": "The Two Towers",
+    "author": "J.R.R. Tolkien",
+    "loaned": false
+  },
+  {
+    "id": 2,
+    "bookName": "Chambers of Secret",
+    "author": "J.K. Rowling",
+    "loaned": false
+  }
+]
