@@ -37,8 +37,6 @@ router.post("/", function (req, res) {
           loaned: false,
         };
         booksData.push(newBook);
-        // does not need to parse the req.body but have to with books
-        // res.json({ books: JSON.parse(books) }); //
         fs.writeFile(
           "./books.json",
           JSON.stringify(booksData),

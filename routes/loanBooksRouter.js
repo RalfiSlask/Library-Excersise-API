@@ -6,39 +6,41 @@ const fs = require("fs");
 router.use(cors());
 
 router.get("/:id", (req, res) => {
-  res.send("hej");
+  res.send("loan id is working");
+});
+
+router.get("/", (req, res) => {
+  res.send("loan url is working");
 });
 
 router.post("/:id", (req, res) => {
   const bookId = req.params.id;
-  fs.readFile("../books.json", (err, books) => {
+  fs.readFile("./books.json", (err, booksData) => {
     if (err) {
       console.log(err);
-      return res.status(500).json({ error: "Error" });
+      res.status(500).json({ error: "Error" });
     }
     try {
       const loaned = req.body.loaned;
-      let books = JSON.parse(books);
+      let books = JSON.parse(booksData);
       books = books.map((book) => {
-        if (book.id === bookId) {
+        if (book.id === Number(bookId)) {
           return { ...book, loaned: loaned };
         } else {
           return book;
         }
       });
-      fs.writeFile("../books.json", JSON.stringify(books), (writeErr) => {
+      console.log(books);
+      fs.writeFile("./books.json", JSON.stringify(books), (writeErr) => {
         if (writeErr) {
           return res.status(500).json({ writeErr: "write Error" });
         }
+        res.status(200).json(books);
       });
     } catch (parseErr) {
       return res.status(500).json({ error: "Parse Error" });
     }
   });
-  console.log(bookId);
-  console.log("Recieved post requst to loan" + bookId);
-  console.log(req.body);
-  res.send("hej" + bookId);
 });
 
 module.exports = router;
