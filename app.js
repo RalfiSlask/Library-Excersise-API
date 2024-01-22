@@ -6,6 +6,7 @@ const cors = require("cors");
 
 const addBooksRouter = require("./routes/addBooksRouter.js");
 const loanBooksRouter = require("./routes/loanBooksRouter.js");
+const deleteBooksRouter = require("./routes/deleteBooksRouter.js");
 
 var app = express();
 
@@ -18,5 +19,6 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/library", addBooksRouter);
 app.use("/loan", loanBooksRouter);
+app.use("/delete", deleteBooksRouter);
 
 module.exports = app;
