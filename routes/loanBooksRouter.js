@@ -13,7 +13,7 @@ router.get("/", (req, res) => {
   res.send("loan url is working");
 });
 
-router.post("/:id", (req, res) => {
+router.patch("/:id", (req, res) => {
   const bookId = req.params.id;
   fs.readFile("./books.json", (err, booksData) => {
     if (err) {
