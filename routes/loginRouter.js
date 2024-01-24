@@ -12,25 +12,14 @@ const getEncryptedPassword = (password, key) => {
   return CryptoJS.AES.encrypt(password, key).toString();
 };
 
-const getArrayOfObjectWithEncryptedPassword = (
-  userObject,
-  encryptedPassword
-) => {
-  const mappedArray = loginArray.map((existingUser) => {
-    if (existingUser === userObject) {
-      return { ...existingUser, password: encryptedPassword };
-    } else {
-      return existingUser;
-    }
-  });
-  return mappedArray;
-};
+router.get("/register", (req, res) => {
+  res.send("register route is working");
+});
 
 router.post("/register", (req, res) => {
   const { email, password } = req.body;
   const key = "Salt Nyckel";
   const encryptedPassword = getEncryptedPassword(password, key);
-
   fs.readFile("./logins.json", (err, data) => {
     if (err) {
       res.status(500).json({ err: "Error reading logins" });
@@ -39,12 +28,16 @@ router.post("/register", (req, res) => {
       const newUser = {
         id: uuidv4(),
         email: email,
-        pasword: encryptedPassword,
+        password: encryptedPassword,
       };
       users.push(newUser);
+      console.log(users, newUser);
       fs.writeFile("./logins.json", JSON.stringify(users), (writeErr) => {
         if (writeErr) {
-          res.status(500).json({ writeErr: "Could not write to logins" });
+          res.status(500).json({ writeErr: "Cant read files" });
+          console.log("writeerror");
+        } else {
+          res.json({ read: "can read file" });
         }
       });
     }
