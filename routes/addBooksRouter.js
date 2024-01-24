@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const router = express.Router();
 const fs = require("fs");
+const { v4: uuidv4 } = require("uuid");
 
 router.use(cors());
 
@@ -32,7 +33,7 @@ router.post("/", function (req, res) {
         console.log(req.body);
         const booksData = JSON.parse(books);
         const newBook = {
-          id: booksData.length + 1,
+          id: uuidv4(),
           ...req.body,
           loaned: false,
         };

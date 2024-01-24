@@ -24,7 +24,8 @@ router.patch("/:id", (req, res) => {
       const loaned = req.body.loaned;
       let books = JSON.parse(booksData);
       books = books.map((book) => {
-        if (book.id === Number(bookId)) {
+        console.log(book.id);
+        if (book.id === bookId) {
           return { ...book, loaned: loaned };
         } else {
           return book;

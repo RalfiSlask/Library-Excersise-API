@@ -1,1 +1,8 @@
-[{"id":2,"bookName":"Chambers of Secret","author":"J.K. Rowling","loaned":false},{"id":3,"bookName":"Hej","author":"Hejsan","loaned":true}]
+[
+  {
+    "id": "5edac7e8-dc4a-4357-99f6-41d64adbc366",
+    "bookName": "Hej",
+    "author": "HEjsan",
+    "loaned": false
+  }
+]

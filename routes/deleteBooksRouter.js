@@ -1,4 +1,3 @@
-const { resolveSoa } = require("dns");
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
@@ -15,11 +14,10 @@ router.delete("/:bookId", (req, res) => {
       res.status(500).json({ Error: "Cant read books" });
     } else {
       const existingBooks = JSON.parse(books);
-      existingBooks.splice(req.id - 1, 1);
-      console.log(existingBooks);
+      existingBooks.splice(Number(req.id) - 1, 1);
       fs.writeFile(
         "./books.json",
-        JSON.stringify(existingBooks),
+        JSON.stringify(existingBooks, null, 2),
         (writeErr) => {
           if (writeErr) {
             res.status(500).json({ Error: "Error writing books" });
