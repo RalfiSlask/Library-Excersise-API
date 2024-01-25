@@ -3,6 +3,9 @@ const router = express.Router();
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 const CryptoJS = require("crypto-js");
+require("dotenv").config();
+
+const key = process.env.ENCRYPTION_KEY;
 
 router.get("/", (req, res) => {
   res.send("this route login is working!");
@@ -12,13 +15,18 @@ const getEncryptedPassword = (password, key) => {
   return CryptoJS.AES.encrypt(password, key).toString();
 };
 
+const getDecryptedPassword = (decryptedPassword, key) => {
+  return CryptoJS.AES.decrypt(decryptedPassword, key).toString(
+    CryptoJS.enc.Utf8
+  );
+};
+
 router.get("/register", (req, res) => {
   res.send("register route is working");
 });
 
 router.post("/register", (req, res) => {
   const { email, password } = req.body;
-  const key = "Salt Nyckel";
   const encryptedPassword = getEncryptedPassword(password, key);
   fs.readFile("./logins.json", (err, data) => {
     if (err) {
@@ -55,18 +63,13 @@ router.post("", (req, res) => {
       res.status(500).json({ err: "could not find login data" });
     } else {
       const { email, password } = req.body;
-      const key = "Salt Nyckel";
       const encryptedPassword = getEncryptedPassword(password, key);
-
       const loginArray = JSON.parse(loginData);
       const user = loginArray.find((user) => user.email === email);
       if (user) {
-        const decryptedPassword = CryptoJS.AES.decrypt(
-          encryptedPassword,
-          key
-        ).toString(CryptoJS.enc.Utf8);
+        const decryptedPassword = getDecryptedPassword(encryptedPassword, key);
         if (password === decryptedPassword) {
-          res.send("Login succesfull");
+          res.json({ email: user.email });
         }
       } else {
         console.log(encryptedPassword);
