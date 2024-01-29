@@ -10,49 +10,31 @@ router.get("/health", function (req, res) {
   res.send("libraryRouter is working!");
 });
 
+
 router.get("/", function (req, res) {
-  fs.readFile("./books.json", function (err, books) {
-    if (err) {
-      res.status(500).json({ error: "Error reading file" });
-    } else {
-      try {
-        res.json(JSON.parse(books));
-      } catch (parseErr) {
-        res.status(500).json({ error: "Error parsing JSON" });
-      }
-    }
-  });
+  req.app.locals.db.collection('books').find().toArray().then(response => {
+    console.log(response)
+    res.send(response)
+  })
 });
 
 router.post("/", function (req, res) {
-  fs.readFile("./books.json", function (err, books) {
-    if (err) {
-      res.status(500).json({ error: "Error reading file" });
+  const { bookName, author } = req.body;
+
+  req.app.locals.db.collection('books').findOne( { "bookName": bookName, "author": author } ).then(existingBook => {
+    if (existingBook) {
+      res.status(409).json( { message: "Book already exist in the collection"})
     } else {
-      try {
-        console.log(req.body);
-        const booksData = JSON.parse(books);
-        const newBook = {
-          id: uuidv4(),
-          ...req.body,
-          loaned: false,
-        };
-        booksData.push(newBook);
-        fs.writeFile(
-          "./books.json",
-          JSON.stringify(booksData),
-          function (writeErr) {
-            if (writeErr) {
-              return res.status(500).json("Error writing file");
-            }
-            res.send(booksData);
-          }
-        );
-      } catch (parseErr) {
-        res.status(500).json({ error: "parseError " });
-      }
+      const newBook = { "id": uuidv4(), "bookName": bookName, "author": author, "loaned": false };
+      req.app.locals.db.collection('books').insertOne(newBook).then(response => {
+        console.log(response)
+        res.json( { data: req.body } );
+      })
     }
-  });
+  }).catch(error => {
+    console.log(error, 'error')
+    res.status(500).json( { message: 'Error checking for existing book '})
+  })
 });
 
 module.exports = router;

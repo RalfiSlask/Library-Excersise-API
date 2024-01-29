@@ -38,7 +38,6 @@ router.post("/register", (req, res) => {
         email: email,
         password: encryptedPassword,
       };
-      console.log(encryptedPassword);
       users.push(newUser);
       console.log(users, newUser);
       fs.writeFile(
@@ -62,14 +61,14 @@ router.post("", (req, res) => {
     if (err) {
       res.status(500).json({ err: "could not find login data" });
     } else {
-      const { email, password } = req.body;
+      const { email, password, id } = req.body;
       const encryptedPassword = getEncryptedPassword(password, key);
       const loginArray = JSON.parse(loginData);
       const user = loginArray.find((user) => user.email === email);
       if (user) {
         const decryptedPassword = getDecryptedPassword(encryptedPassword, key);
         if (password === decryptedPassword) {
-          res.json({ email: user.email });
+          res.json({ id: user.id, email: user.email });
         }
       } else {
         console.log(encryptedPassword);
