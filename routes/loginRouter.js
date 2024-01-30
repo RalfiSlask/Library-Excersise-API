@@ -7,10 +7,6 @@ require("dotenv").config();
 
 const key = process.env.ENCRYPTION_KEY;
 
-router.get("/", (req, res) => {
-  res.send("this route login is working!");
-});
-
 const getEncryptedPassword = (password, key) => {
   return CryptoJS.AES.encrypt(password, key).toString();
 };
@@ -25,38 +21,57 @@ router.get("/register", (req, res) => {
   res.send("register route is working");
 });
 
+router.get("/", (req, res) => {
+  req.app.locals.db.collection('logins').find().toArray().then(books => {
+    console.log(books)
+    res.send(books)
+  })
+});
+
 router.post("/register", (req, res) => {
   const { email, password } = req.body;
-  const encryptedPassword = getEncryptedPassword(password, key);
-  fs.readFile("./logins.json", (err, data) => {
-    if (err) {
-      res.status(500).json({ err: "Error reading logins" });
+  req.app.locals.db.collection('logins').findOne( { "email": email } ).then(emailMatches => {
+    if (emailMatches) {
+      res.status(400).json( { error: 'Email already in use'})
     } else {
-      const users = JSON.parse(data);
-      const newUser = {
-        id: uuidv4(),
-        email: email,
-        password: encryptedPassword,
-      };
-      users.push(newUser);
-      console.log(users, newUser);
-      fs.writeFile(
-        "./logins.json",
-        JSON.stringify(users, null, 2),
-        (writeErr) => {
-          if (writeErr) {
-            res.status(500).json({ writeErr: "Cant read files" });
-            console.log("writeerror");
-          } else {
-            res.json({ read: "can read file" });
-          }
-        }
-      );
+      const encryptedPassword = getEncryptedPassword(password, key);
+      req.app.locals.db.collection('logins').insertOne( {...req.body, password: encryptedPassword, id:uuidv4()} ).then(login => {
+        console.log(login)
+        res.status(201).json( { status: 'login added succesfully' } )
+      }).catch(error => {
+        console.log(error, 'could not add login')
+        res.status(500).json( { error: 'could not add login'} )
+      })
     }
-  });
+  }).catch(error => {
+    console.log(error, 'could not find login');
+    res.status(500).json( {error: 'could not find login'})
+  })
 });
 
 router.post("", (req, res) => {
+  const { email, password } = req.body;
+  req.app.locals.db.collection('logins').findOne( { "email": email }).then(emailMatches => {
+    if (emailMatches) {
+      console.log(email)
+      res.send('email matches')
+      req.app.locals.db.collection('logins').findOne( { "password": password }).then(passwordMatches => {
+
+      }).catch(error => {
+        console.log('error')
+        res.status(500).json( { error: 'error'} )
+      })
+    } else {
+      console.log('email does not exist, cant login')
+      res.status(500).json( { error: 'email does not exist '})
+    }
+  }).catch(error => {
+    console.log(error, 'error logging in');
+    res.status(500).json( { error: 'error logging in' } )
+  })
+
+
+/*   
   fs.readFile("./logins.json", (err, loginData) => {
     if (err) {
       res.status(500).json({ err: "could not find login data" });
@@ -76,7 +91,7 @@ router.post("", (req, res) => {
         console.log("user not found on server/database");
       }
     }
-  });
+  }); */
 });
 
 module.exports = router;

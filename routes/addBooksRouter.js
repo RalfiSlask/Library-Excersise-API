@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const router = express.Router();
-const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 
 router.use(cors());
@@ -21,10 +20,13 @@ router.get("/", function (req, res) {
 router.post("/", function (req, res) {
   const { bookName, author } = req.body;
 
+  // looking through database if the books already exists
   req.app.locals.db.collection('books').findOne( { "bookName": bookName, "author": author } ).then(existingBook => {
     if (existingBook) {
       res.status(409).json( { message: "Book already exist in the collection"})
     } else {
+
+      // if it does not exist create new book and insert to database
       const newBook = { "id": uuidv4(), "bookName": bookName, "author": author, "loaned": false };
       req.app.locals.db.collection('books').insertOne(newBook).then(response => {
         console.log(response)

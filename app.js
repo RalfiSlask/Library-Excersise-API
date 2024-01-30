@@ -4,13 +4,16 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const cors = require("cors");
 const MongoClient = require('mongodb').MongoClient;
+const dotenv = require('dotenv');
 
-MongoClient.connect("mongodb://localhost:27017").then(client => {
-    console.log('Vi är uppkollade');
+dotenv.config();
+
+MongoClient.connect(process.env.DATABASE_URL).then(client => {
+    console.log('We are connected to database');
 
     const db = client.db("library");
     app.locals.db = db;
-})
+});
 
 const addBooksRouter = require("./routes/addBooksRouter.js");
 const loanBooksRouter = require("./routes/loanBooksRouter.js");
